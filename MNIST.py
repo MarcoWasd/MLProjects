@@ -12,7 +12,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from tensorflow import keras
 
-
 # Data loading and preparation
 mnist = fetch_openml('mnist_784', version=1)
 mnist.keys()
@@ -37,8 +36,12 @@ X_train_cut = np.empty([60000,400])
 for i in range(60000):
     X_train_cut[i] = X_train[i].reshape(28,28)[5:25,5:25].reshape(400,) 
 
+X_test_cut = np.empty([10000,400])
+for i in range(10000):
+    X_test_cut[i] = X_test[i].reshape(28,28)[5:25,5:25].reshape(400,) 
+
 # Feature scaling
-scaler = StandardScaler(n_jobs=-1)
+scaler = StandardScaler()
 X_train_scaled_cut = scaler.fit_transform(X_train_cut.astype(np.float64))
 
 # First element is a number five. I will start with a classifier for the number five
@@ -87,7 +90,7 @@ model.compile(loss="sparse_categorical_crossentropy", optimizer="sgd", metrics=[
 
 history = model.fit(X_train_scaled_cut, y_train, epochs=30)
 
-model.evaluate(X_test, y_test)
+model.evaluate(X_test_cut, y_test)
 
 
 
