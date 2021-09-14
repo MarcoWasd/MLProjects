@@ -11,6 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from tensorflow import keras
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization
 
 # Data loading and preparation
 mnist = fetch_openml('mnist_784', version=1)
@@ -80,30 +81,38 @@ rmse = mean_squared_error(y_test, predictions)
 
 # Neural Network
 
+X_train_scaled_cut = X_train_scaled_cut.reshape(60000, 20, 20, 1)
+
+
 model = keras.models.Sequential()
 
-model.add(keras.layers.Dense(300, activation="relu"))
-model.add(keras.layers.Dense(300, activation="relu"))
-model.add(keras.layers.Dense(300, activation="softmax"))
+model.add(Conv2D(64, 7, activation='relu', padding='same', input_shape=(20,20, 1)))
+model.add(MaxPooling2D(2))
+model.add(Conv2D(filters=64, kernel_size=3, padding='same', activation='relu'))
+model.add(Conv2D(filters=64, kernel_size=3, padding='same', activation='relu'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(2))
+model.add(Conv2D(filters=128, kernel_size=3, padding='same', activation='relu'))
+model.add(Conv2D(filters=128, kernel_size=3, padding='same', activation='relu'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(2))
+model.add(Conv2D(filters=256, kernel_size=3, padding='same', activation='relu'))
+model.add(Conv2D(filters=256, kernel_size=3, padding='same', activation='relu'))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(2))
+model.add(Flatten())
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(64, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(32, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(10, activation="softmax"))
 
 model.compile(loss="sparse_categorical_crossentropy", optimizer="sgd", metrics=["accuracy"])
 
-history = model.fit(X_train_scaled_cut, y_train, epochs=30)
-
-model.evaluate(X_test_cut, y_test)
 
 
+history = model.fit(X_train_scaled_cut, y_train.values, epochs=30, validation_split=0.1)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# accuracy 0.9837 after 30 epoch
