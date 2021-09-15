@@ -115,4 +115,8 @@ model.compile(loss="sparse_categorical_crossentropy", optimizer="sgd", metrics=[
 
 history = model.fit(X_train_scaled_cut, y_train.values, epochs=30, validation_split=0.1)
 
-# accuracy 0.9837 after 30 epoch
+X_test_ev = X_test_cut.reshape(10000, 20, 20, 1)
+model.evaluate(X_test_ev, y_test)
+
+# accuracy 0.9795 on test set
+
